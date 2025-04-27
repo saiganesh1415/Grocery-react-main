@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = 'grocery-react-main-frontend:latest'
+        DOCKER_REPO = 'saiganesh1415/grocery-react-main-frontend'
     }
 
     stages {
@@ -14,30 +15,27 @@ pipeline {
 
         stage('Build Docker Images') {
             steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-credentials',
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
-                )]) {
-                    script {
-                        sh """
-                            echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                            docker build -t $IMAGE_NAME .
-                        """
-                    }
+                script {
+                    // Building the Docker image
+                    sh """
+                        docker build -t $IMAGE_NAME .
+                    """
                 }
             }
         }
 
         stage('Start Containers') {
             steps {
+                // Running containers in detached mode
                 sh 'docker-compose up -d --build'
             }
         }
 
         stage('Test Containers') {
             steps {
+                // Checking running containers
                 sh 'docker ps'
+                // View frontend logs
                 sh 'docker-compose logs frontend'
             }
         }
@@ -50,11 +48,12 @@ pipeline {
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
                     script {
-                        def dockerHubImage = "${DOCKER_USER}/grocery-react-main-frontend:latest"
+                        // Docker login, tag, and push to Docker Hub
+                        def dockerHubImage = "${DOCKER_REPO}:latest"
                         sh """
                             echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                            docker tag $IMAGE_NAME ${dockerHubImage}
-                            docker push ${dockerHubImage}
+                            docker tag $IMAGE_NAME $dockerHubImage
+                            docker push $dockerHubImage
                             docker logout
                         """
                     }
