@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = 'grocery-react-main-frontend:latest'
-        DOCKER_REPO = 'saiganesh1415/grocery-react-main-frontend'
+        IMAGE_NAME = 'grocery-react-main-frontend-1'
+        DOCKER_REPO = 'saiganesh1415/grocery-react-main-frontend-1'
     }
 
     stages {
