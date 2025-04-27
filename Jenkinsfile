@@ -9,7 +9,7 @@ pipeline {
         // Stage 1: Clone the repository
         stage('Clone Repo') {
             steps {
-                git branch: 'master', url: 'https://github.com/saiganesh1415/nn.git'
+                git branch: 'main', url: 'https://github.com/saiganesh1415/nn.git'
             }
         }
 
@@ -22,12 +22,12 @@ pipeline {
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
                     script {
-                        // Use escaped dollar signs to prevent Groovy interpolation of secrets
-                        sh """
-                            echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
-                            docker build -t grocery-react-main-frontend . 
+                        // Securely pass the secrets as environment variables
+                        sh '''
+                            echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                            docker build -t grocery-react-main-frontend .
                             docker logout
-                        """
+                        '''
                     }
                 }
             }
@@ -58,12 +58,12 @@ pipeline {
                 )]) {
                     script {
                         def imageName = "${env.IMAGE_NAME}"  // Use environment variable for image name
-                        sh """
-                            echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
+                        sh '''
+                            echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
                             docker tag grocery-react-main-frontend:latest ${imageName}  // Tag image with the desired name
                             docker push ${imageName}  // Push the image to Docker Hub
                             docker logout  // Logout after pushing
-                        """
+                        '''
                     }
                 }
             }
