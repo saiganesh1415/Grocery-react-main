@@ -6,30 +6,12 @@ pipeline {
     }
 
     stages {
-        // Stage 1: Install Docker CLI (optional if already installed)
-        stage('Install Docker CLI') {
-            steps {
-                sh '''
-                    if ! command -v docker &> /dev/null
-                    then
-                        echo "Docker not found, installing..."
-                        apk update
-                        apk add docker-cli
-                    else
-                        echo "Docker is already installed."
-                    fi
-                '''
-            }
-        }
-
-        // Stage 2: Clone the repository
         stage('Clone Repo') {
             steps {
                 git branch: 'main', url: 'https://github.com/saiganesh1415/Grocery-react-main.git'
             }
         }
 
-        // Stage 3: Build Docker image
         stage('Build Docker Image') {
             steps {
                 withCredentials([usernamePassword(
@@ -48,14 +30,12 @@ pipeline {
             }
         }
 
-        // Stage 4: Start Docker containers
         stage('Start Containers') {
             steps {
                 sh 'docker-compose up -d --build'
             }
         }
 
-        // Stage 5: Test Docker containers
         stage('Test Containers') {
             steps {
                 sh 'docker ps'
@@ -63,7 +43,6 @@ pipeline {
             }
         }
 
-        // Stage 6: Push Docker image to DockerHub
         stage('Push to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(
@@ -83,7 +62,6 @@ pipeline {
             }
         }
 
-        // Stage 7: Stop and remove Docker containers
         stage('Stop and Remove Containers') {
             steps {
                 sh 'docker-compose down'
