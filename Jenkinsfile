@@ -9,7 +9,7 @@ pipeline {
         // Stage 1: Clone the repository
         stage('Clone Repo') {
             steps {
-                git branch: 'master', url: 'https://github.com/saiganesh1415/nn.git'
+                git branch: 'master', url: 'https://github.com/saiganesh1415/Grocery-react-main.git'
             }
         }
 
