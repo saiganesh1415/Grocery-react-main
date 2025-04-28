@@ -53,13 +53,13 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: 'github-token',
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
+                    usernameVariable: 'USER_NAME',
+                    passwordVariable: 'USER_PASSWORD'
                 )]) {
                     script {
                         def imageName = "${env.IMAGE_NAME}"  // Use environment variable for image name
                         sh """
-                           // echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
+                           // echo \$USER_NAME | docker login -u \$USER_PASSWORD --password-stdin
                             docker tag grocery-react-main-frontend:latest ${imageName}  // Tag image with the desired name 
                             docker push ${imageName}  // Push the image to Docker Hub
                             docker logout  // Logout after pushing
