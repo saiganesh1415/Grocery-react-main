@@ -1,5 +1,10 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'docker:24.0.7'   // Use official Docker CLI image
+            args '-v /var/run/docker.sock:/var/run/docker.sock'  // Allow access to host Docker
+        }
+    }
 
     environment {
         IMAGE_NAME = 'saiganesh1415/grocery-react-main-frontend:latest'
@@ -17,15 +22,14 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'github-token',
+                    credentialsId: 'github-token', // ID of Jenkins DockerHub credentials
                     usernameVariable: 'DOCKER_USERNAME',
                     passwordVariable: 'DOCKER_PASSWORD'
                 )]) {
                     script {
-                        // Login to Docker Hub using credentials stored in Jenkins
                         sh """
-                            echo \$USER_PASSWORD | docker login -u \$USER_NAME --password-stdin
-                            docker build -t grocery-react-main-frontend . 
+                            echo \$DOCKER_PASSWORD | docker login -u \$DOCKER_USERNAME --password-stdin
+                            docker build -t grocery-react-main-frontend .
                             docker logout
                         """
                     }
@@ -36,15 +40,15 @@ pipeline {
         // Stage 3: Start Docker containers using Docker Compose
         stage('Start Containers') {
             steps {
-                sh 'docker-compose up -d --build'  // Build and start the containers in detached mode
+                sh 'docker-compose up -d --build'
             }
         }
 
-        // Stage 4: Test Docker containers (check container status and logs)
+        // Stage 4: Test Docker containers
         stage('Test Containers') {
             steps {
-                sh 'docker ps'  // Check running containers
-                sh 'docker-compose logs frontend'  // Check logs for the frontend service
+                sh 'docker ps'
+                sh 'docker-compose logs frontend'
             }
         }
 
@@ -52,17 +56,16 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'github-token',
+                    credentialsId: 'github-token',  // Same DockerHub credentials
                     usernameVariable: 'DOCKER_USERNAME',
                     passwordVariable: 'DOCKER_PASSWORD'
                 )]) {
                     script {
-                        def imageName = "${env.IMAGE_NAME}"  // Use environment variable for image name
                         sh """
-                            echo \$USER_PASSWORD | docker login -u \$USER_NAME --password-stdin
-                            docker tag grocery-react-main-frontend:latest ${imageName}  // Tag image with the desired name 
-                            docker push ${imageName}  // Push the image to Docker Hub
-                            docker logout  // Logout after pushing
+                            echo \$DOCKER_PASSWORD | docker login -u \$DOCKER_USERNAME --password-stdin
+                            docker tag grocery-react-main-frontend:latest ${IMAGE_NAME}
+                            docker push ${IMAGE_NAME}
+                            docker logout
                         """
                     }
                 }
@@ -72,14 +75,13 @@ pipeline {
         // Stage 6: Stop and remove Docker containers
         stage('Stop and Remove Containers') {
             steps {
-                sh 'docker-compose down'  // Stops and removes containers, networks, and volumes created by Docker Compose
+                sh 'docker-compose down'
             }
         }
     }
 
     post {
         always {
-            // Clean up any resources or log information after each pipeline run
             echo "Cleaning up resources after pipeline execution."
         }
         success {
