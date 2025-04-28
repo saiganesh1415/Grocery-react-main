@@ -22,9 +22,9 @@ pipeline {
                     passwordVariable: 'USER_PASSWORD'
                 )]) {
                     script {
-                        // Use escaped dollar signs to prevent Groovy interpolation of secrets
+                        // Login to Docker Hub using credentials stored in Jenkins
                         sh """
-                            echo \$USER_NAME | docker login -u \$USER_PASSWORD --password-stdin
+                            echo \$USER_PASSWORD | docker login -u \$USER_NAME --password-stdin
                             docker build -t grocery-react-main-frontend . 
                             docker logout
                         """
@@ -59,7 +59,7 @@ pipeline {
                     script {
                         def imageName = "${env.IMAGE_NAME}"  // Use environment variable for image name
                         sh """
-                           // echo \$USER_NAME | docker login -u \$USER_PASSWORD --password-stdin
+                            echo \$USER_PASSWORD | docker login -u \$USER_NAME --password-stdin
                             docker tag grocery-react-main-frontend:latest ${imageName}  // Tag image with the desired name 
                             docker push ${imageName}  // Push the image to Docker Hub
                             docker logout  // Logout after pushing
