@@ -9,7 +9,7 @@ pipeline {
         // Stage 1: Clone the repository
         stage('Clone Repo') {
             steps {
-                git branch: 'master', url: 'https://github.com/saiganesh1415/Grocery-react-main.git'
+                git branch: 'main', url: 'https://github.com/saiganesh1415/Grocery-react-main.git'
             }
         }
 
@@ -18,8 +18,8 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: 'github-token',
-                    usernameVariable: 'USER_NAME',
-                    passwordVariable: 'USER_PASSWORD'
+                    usernameVariable: 'DOCKER_USERNAME',
+                    passwordVariable: 'DOCKER_PASSWORD'
                 )]) {
                     script {
                         // Login to Docker Hub using credentials stored in Jenkins
@@ -53,8 +53,8 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: 'github-token',
-                    usernameVariable: 'USER_NAME',
-                    passwordVariable: 'USER_PASSWORD'
+                    usernameVariable: 'DOCKER_USERNAME',
+                    passwordVariable: 'DOCKER_PASSWORD'
                 )]) {
                     script {
                         def imageName = "${env.IMAGE_NAME}"  // Use environment variable for image name
