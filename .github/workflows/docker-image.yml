@@ -46,6 +46,4 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: grocery-react-main-frontend:latest
-
-
+        tags: ${{ secrets.DOCKER_USERNAME }}/grocery-react-main-frontend:latest
