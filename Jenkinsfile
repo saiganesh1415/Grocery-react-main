@@ -18,13 +18,13 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: 'github-token',
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
+                    usernameVariable: 'USER_NAME',
+                    passwordVariable: 'USER_PASSWORD'
                 )]) {
                     script {
                         // Use escaped dollar signs to prevent Groovy interpolation of secrets
                         sh """
-                            echo \$DOCKER_PASS | docker login -u \$DOCKER_USER --password-stdin
+                            echo \$USER_NAME | docker login -u \$USER_PASSWORD --password-stdin
                             docker build -t grocery-react-main-frontend . 
                             docker logout
                         """
